@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Allows HTTP connections for local development (localhost / LAN IP) -->
+<!-- For production, use HTTPS and remove the cleartext permission -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">NexDrop</string>
+    <string name="pair_title">Connect to PC</string>
+    <string name="pair_subtitle">Show this code on your PC to connect</string>
+    <string name="connecting">Connecting to server…</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="send_hint">Message or send a file…</string>
+    <string name="attach_file">Attach file</string>
+    <string name="download">Download</string>
+    <string name="sending">Sending…</string>
+    <string name="sent">Sent</string>
+    <string name="received">Received</string>
+    <string name="tap_to_download">Tap to download</string>
+    <string name="history">History</string>
+    <string name="no_history">No transfers yet</string>
+    <string name="server_url_hint">Server URL (e.g. http://192.168.1.5:5000)</string>
+</resources>

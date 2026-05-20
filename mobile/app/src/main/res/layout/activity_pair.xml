@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="@color/bg">
+
+    <!-- Brand name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NexDrop"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect to your PC"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="40dp" />
+
+    <!-- Generate code button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_generate"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Generate Pairing Code"
+        android:textSize="15sp"
+        android:backgroundTint="@color/blue"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 6-digit code display -->
+    <TextView
+        android:id="@+id/tv_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:textColor="@color/blue"
+        android:letterSpacing="0.2"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone" />
+
+    <!-- QR Code image -->
+    <ImageView
+        android:id="@+id/iv_qr_code"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="32dp"
+        android:visibility="gone"
+        android:contentDescription="QR Code for pairing" />
+
+    <!-- Status text -->
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connecting to server…"
+        android:textSize="13sp"
+        android:textColor="@color/text_hint"
+        android:gravity="center" />
+
+</LinearLayout>
