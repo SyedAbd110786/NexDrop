@@ -1,2 +1,0 @@
-[start]
-cmd = "cd server && npm install && node src/server.js"
