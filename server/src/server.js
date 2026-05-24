@@ -39,10 +39,20 @@ app.get("/", (req, res) => {
   res.json({ status: "NexDrop server is running", version: "1.0.0" });
 });
 
+app.get("/offline-connect", (req, res) => {
+  res.json({
+    status: "NexDrop local server",
+    mode: "offline",
+    version: "1.0.0",
+    socketUrl: `http://${req.hostname}:${PORT}`,
+    message: "Connected to PC local server"
+  });
+});
+
 // Socket.io handlers
 registerSocketHandlers(io);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ NexDrop server running on port ${PORT}`);
 });
