@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center"
+    android:padding="28dp" android:background="@color/bg">
+    <TextView android:id="@+id/btn_back"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="← Back" android:textSize="13sp" android:textColor="@color/blue"
+        android:layout_gravity="start" android:layout_marginBottom="24dp"
+        android:clickable="true" android:focusable="true" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="NexDrop" android:textSize="30sp" android:textStyle="bold"
+        android:textColor="@color/text_primary" android:layout_marginBottom="4dp" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="📶  Offline Mode" android:textSize="12sp" android:textStyle="bold"
+        android:textColor="@color/blue" android:background="@drawable/bg_badge"
+        android:paddingStart="12dp" android:paddingEnd="12dp"
+        android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:layout_marginBottom="32dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="1. Open NexDrop web app on your PC"
+        android:textSize="13sp" android:textColor="@color/text_primary"
+        android:layout_marginBottom="6dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="2. Click Offline Mode on the PC"
+        android:textSize="13sp" android:textColor="@color/text_primary"
+        android:layout_marginBottom="6dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="3. A QR code appears on your PC screen"
+        android:textSize="13sp" android:textColor="@color/text_primary"
+        android:layout_marginBottom="6dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="4. Tap the button below to scan it"
+        android:textSize="13sp" android:textColor="@color/text_primary"
+        android:layout_marginBottom="32dp" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_scan_qr"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="📷  Scan QR Code from PC"
+        android:textSize="15sp" android:backgroundTint="@color/blue"
+        android:layout_marginBottom="16dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Make sure your phone and PC are on the same WiFi network"
+        android:textSize="12sp" android:textColor="@color/text_hint"
+        android:gravity="center" android:lineSpacingMultiplier="1.4" />
+</LinearLayout>

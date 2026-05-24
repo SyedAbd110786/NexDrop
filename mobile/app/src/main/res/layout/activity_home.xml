@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center"
+    android:padding="28dp" android:background="@color/bg">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="NexDrop" android:textSize="34sp" android:textStyle="bold"
+        android:textColor="@color/text_primary" android:layout_marginBottom="6dp" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Choose connection mode" android:textSize="14sp"
+        android:textColor="@color/text_secondary" android:layout_marginBottom="40dp" />
+    <LinearLayout android:id="@+id/btn_offline_mode"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="@drawable/bg_card_blue"
+        android:padding="20dp" android:layout_marginBottom="14dp"
+        android:clickable="true" android:focusable="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="📶" android:textSize="24sp" android:layout_marginEnd="10dp" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Offline Mode"
+                android:textSize="16sp" android:textStyle="bold" android:textColor="@color/blue" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="RECOMMENDED" android:textSize="9sp" android:textStyle="bold"
+                android:textColor="@color/blue" android:background="@drawable/bg_badge"
+                android:paddingStart="8dp" android:paddingEnd="8dp"
+                android:paddingTop="3dp" android:paddingBottom="3dp" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="No internet needed. Scan QR code from PC. Works like Zapya on local WiFi."
+            android:textSize="12sp" android:textColor="@color/text_secondary"
+            android:lineSpacingMultiplier="1.4" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/btn_online_mode"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="@drawable/bg_card"
+        android:padding="20dp" android:clickable="true" android:focusable="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🌐" android:textSize="24sp" android:layout_marginEnd="10dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Online Mode" android:textSize="16sp"
+                android:textStyle="bold" android:textColor="@color/text_primary" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Works over internet. Connect from anywhere using a 6-digit pairing code."
+            android:textSize="12sp" android:textColor="@color/text_secondary"
+            android:lineSpacingMultiplier="1.4" />
+    </LinearLayout>
+</LinearLayout>

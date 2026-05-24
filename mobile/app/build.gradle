@@ -12,6 +12,7 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "SERVER_URL", "\"https://nexdrop-production.up.railway.app\""
 
         // Change this to your server URL before building
         // For local testing use your PC's IP e.g. http://192.168.1.5:5000
@@ -38,23 +39,17 @@ android {
 }
 
 dependencies {
-    // AndroidX core
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
-    // Socket.IO client — real-time connection to NexDrop server
     implementation('io.socket:socket.io-client:2.1.0') {
         exclude group: 'org.json', module: 'json'
     }
 
-    // OkHttp — file uploads via HTTP
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-
-    // ZXing — generate QR codes from pairing code
     implementation 'com.google.zxing:core:3.5.2'
-
-    // Gson — JSON parsing for socket messages
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
     implementation 'com.google.code.gson:gson:2.10.1'
 }
