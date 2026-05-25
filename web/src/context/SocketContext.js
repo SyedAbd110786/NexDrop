@@ -4,25 +4,6 @@ import { detectLocalIP, isHostedDeploy, isLocalHostname, isPrivateIP } from "../
 
 const SocketContext = createContext(null);
 const ONLINE_SERVER = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
-const LOG_ENDPOINT = "http://127.0.0.1:7860/ingest/0450a8f0-1520-45c5-a34c-2040ffa7c1c0";
-
-function debugLog(location, message, data, hypothesisId) {
-  // #region agent log
-  fetch(LOG_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d0cfc0" },
-    body: JSON.stringify({
-      sessionId: "d0cfc0",
-      location,
-      message,
-      data,
-      hypothesisId,
-      timestamp: Date.now(),
-      runId: "offline-fix",
-    }),
-  }).catch(() => {});
-  // #endregion
-}
 
 export function SocketProvider({ children }) {
   const socketRef = useRef(null);
@@ -38,7 +19,6 @@ export function SocketProvider({ children }) {
   function connectSocket(serverUrl) {
     if (socketRef.current) socketRef.current.disconnect();
     setActiveServerUrl(serverUrl);
-    debugLog("SocketContext.js:connectSocket", "connecting", { serverUrl, hostname: window.location.hostname }, "B");
 
     const socket = io(serverUrl, {
       transports: ["websocket"],
@@ -51,7 +31,6 @@ export function SocketProvider({ children }) {
     socket.on("connect", () => {
       setConnected(true);
       setOfflineError(null);
-      debugLog("SocketContext.js:connect", "socket connected", { serverUrl }, "B");
       socket.emit("device:register", { deviceName: "My PC", deviceType: "pc" });
     });
     socket.on("disconnect", () => setConnected(false));
@@ -63,7 +42,6 @@ export function SocketProvider({ children }) {
           ? `Cannot reach local server at ${serverUrl}. Run "node server/src/server.js" on this PC, then retry. (${msg})`
           : null
       );
-      debugLog("SocketContext.js:connect_error", "socket failed", { serverUrl, msg }, "B");
     });
     socket.on("device:registered", ({ deviceId }) => setDeviceId(deviceId));
     socket.on("pairing:success", ({ pairedDevice }) => setPairedDevice(pairedDevice));
@@ -94,8 +72,6 @@ export function SocketProvider({ children }) {
     if (!ip) {
       ip = await detectLocalIP();
     }
-
-    debugLog("SocketContext.js:switchToOffline", "IP detection result", { hostname, hosted, ip, manual: !!manualIP }, "A");
 
     if (!ip) {
       if (hosted) {
