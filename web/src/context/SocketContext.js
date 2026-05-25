@@ -11,6 +11,8 @@ export function SocketProvider({ children }) {
   const [pairedDevice, setPairedDevice] = useState(null);
   const [mode, setMode] = useState("online");
   const [localIP, setLocalIP] = useState(null);
+  const [activeServerUrl, setActiveServerUrl] = useState(ONLINE_SERVER);
+  const modeRef = useRef("online");
 
   async function detectLocalIP() {
     return new Promise((resolve) => {
@@ -31,6 +33,7 @@ export function SocketProvider({ children }) {
 
   function connectSocket(serverUrl) {
     if (socketRef.current) socketRef.current.disconnect();
+    setActiveServerUrl(serverUrl);
     const socket = io(serverUrl, {
       transports: ["websocket"],
       reconnection: true,
@@ -46,10 +49,15 @@ export function SocketProvider({ children }) {
     socket.on("device:registered", ({ deviceId }) => setDeviceId(deviceId));
     socket.on("pairing:success", ({ pairedDevice }) => setPairedDevice(pairedDevice));
     socket.on("device:disconnected", () => setPairedDevice(null));
+    socket.on("pairing:code:available", ({ sessionCode }) => {
+      if (modeRef.current !== "offline") return;
+      socket.emit("pairing:join", { sessionCode });
+    });
   }
 
   async function switchToOffline() {
     setMode("offline");
+    modeRef.current = "offline";
     setPairedDevice(null);
     setConnected(false);
     const ip = await detectLocalIP();
@@ -59,6 +67,7 @@ export function SocketProvider({ children }) {
 
   function switchToOnline() {
     setMode("online");
+    modeRef.current = "online";
     setPairedDevice(null);
     setConnected(false);
     setLocalIP(null);
@@ -73,7 +82,7 @@ export function SocketProvider({ children }) {
   return (
     <SocketContext.Provider value={{
       socket: socketRef.current, connected, deviceId,
-      pairedDevice, setPairedDevice, mode, localIP,
+      pairedDevice, setPairedDevice, mode, localIP, activeServerUrl,
       switchToOffline, switchToOnline,
     }}>
       {children}

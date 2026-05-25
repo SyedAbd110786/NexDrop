@@ -12,11 +12,8 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-        buildConfigField "String", "SERVER_URL", "\"https://nexdrop-production.up.railway.app\""
-
         // Change this to your server URL before building
         // For local testing use your PC's IP e.g. http://192.168.1.5:5000
-        // For production use your deployed server URL
         buildConfigField "String", "SERVER_URL", "\"https://nexdrop-7t5qv8sp.b4a.run\""
     }
 

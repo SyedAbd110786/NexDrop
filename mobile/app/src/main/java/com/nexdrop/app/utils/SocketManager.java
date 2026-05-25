@@ -27,6 +27,7 @@ public class SocketManager {
     private String deviceId;
     private String pairedDeviceId;
     private String pairedDeviceName;
+    private String serverUrl = BuildConfig.SERVER_URL;
 
     // Listeners — activities register these to get updates
     private final List<OnDeviceRegisteredListener> registeredListeners = new ArrayList<>();
@@ -51,8 +52,17 @@ public class SocketManager {
         return instance;
     }
 
+    public void setServerUrl(String url) {
+        this.serverUrl = url;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
     /** Connect to the NexDrop server */
     public void connect(String serverUrl) {
+        this.serverUrl = serverUrl;
         if (socket != null && socket.connected()) return;
         try {
             IO.Options options = IO.Options.builder()

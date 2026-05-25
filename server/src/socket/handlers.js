@@ -40,6 +40,14 @@ function registerSocketHandlers(io) {
       };
 
       socket.emit("pairing:code", { sessionCode });
+
+      // Notify unpaired PCs so offline mode can auto-join (phone hosts the session)
+      for (const dev of Object.values(connectedDevices)) {
+        if (dev.deviceType === "pc" && !dev.pairedWith) {
+          const pcSocket = io.sockets.sockets.get(dev.socketId);
+          if (pcSocket) pcSocket.emit("pairing:code:available", { sessionCode });
+        }
+      }
       console.log(`🔑 Pairing code generated: ${sessionCode} for device ${deviceId}`);
 
       // Expire session after 5 minutes

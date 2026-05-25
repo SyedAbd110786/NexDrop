@@ -30,6 +30,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(uploadsDir));
 
+const PORT = process.env.PORT || 5000;
+
 // Routes
 app.use("/api/files", fileRoutes);
 app.use("/api/devices", deviceRoutes);
@@ -40,11 +42,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/offline-connect", (req, res) => {
+  const socketUrl = `http://${req.hostname}:${PORT}`;
   res.json({
     status: "NexDrop local server",
     mode: "offline",
     version: "1.0.0",
-    socketUrl: `http://${req.hostname}:${PORT}`,
+    socketUrl,
     message: "Connected to PC local server"
   });
 });
@@ -52,7 +55,6 @@ app.get("/offline-connect", (req, res) => {
 // Socket.io handlers
 registerSocketHandlers(io);
 
-const PORT = process.env.PORT || 5000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ NexDrop server running on port ${PORT}`);
 });

@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSocket } from "../context/SocketContext";
 
-const SERVER = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
-
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -23,7 +21,7 @@ function getFileIcon(name = "", type = "") {
 }
 
 export default function ChatScreen() {
-  const { socket, pairedDevice } = useSocket();
+  const { socket, pairedDevice, activeServerUrl } = useSocket();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [history, setHistory] = useState([]);
@@ -64,7 +62,7 @@ export default function ChatScreen() {
       socket.off("message:receive");
       socket.off("file:incoming");
     };
-  }, [socket]);
+  }, [socket, activeServerUrl]);
 
   function sendText() {
     if (!text.trim()) return;
@@ -81,7 +79,7 @@ export default function ChatScreen() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(`${SERVER}/api/files/upload`, formData, {
+      const res = await axios.post(`${activeServerUrl}/api/files/upload`, formData, {
         onUploadProgress: (e) => {
           const pct = Math.round((e.loaded / e.total) * 100);
           setMessages(prev => prev.map(m => m.tempId === tempId ? { ...m, progress: pct } : m));
@@ -97,7 +95,7 @@ export default function ChatScreen() {
       setMessages(prev => prev.filter(m => m.tempId !== tempId));
       showToast("❌ Upload failed");
     }
-  }, [socket]);
+  }, [socket, activeServerUrl]);
 
   function handleFiles(files) {
     Array.from(files).forEach(uploadFile);
@@ -111,7 +109,7 @@ export default function ChatScreen() {
 
   function downloadFile(msg) {
     const ext = msg.fileName.split(".").pop();
-    window.open(`${SERVER}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
+    window.open(`${activeServerUrl}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
   }
 
   return (
