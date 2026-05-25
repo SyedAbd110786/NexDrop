@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSocket } from "../context/SocketContext";
-import { isHostedDeploy } from "../utils/network";
+import { canUseOfflineFromBrowser, isHostedDeploy } from "../utils/network";
 
 function QRCodeImage({ value, size = 200 }) {
   const url = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(value)}`;
@@ -21,6 +21,7 @@ export default function PairScreen() {
   const canShowQr = localIP && !offlineError;
   const offlineUrl = canShowQr ? `http://${localIP}:5000/offline-connect` : null;
   const onHostedSite = isHostedDeploy(window.location.hostname);
+  const offlineAllowed = canUseOfflineFromBrowser();
 
   function handleJoin() {
     if (code.length < 6) { setError("Enter the 6-character code from your phone"); return; }
@@ -32,6 +33,11 @@ export default function PairScreen() {
   }
 
   function handleOfflineMode() {
+    if (!offlineAllowed) {
+      setView("offline");
+      switchToOffline();
+      return;
+    }
     setView("offline");
     switchToOffline();
   }
@@ -57,15 +63,18 @@ export default function PairScreen() {
           <span className="brand-drop">Drop</span>
         </div>
         <p className="pair-subtitle">Choose how to connect your phone</p>
-        {onHostedSite && (
+        {(!offlineAllowed || onHostedSite) && (
           <div style={{ background: "#FFF3E0", border: "1px solid #FFE0B2", borderRadius: 10,
             padding: "10px 12px", marginBottom: 12, fontSize: 12, color: "#854F0B", lineHeight: 1.5 }}>
-            <strong>Offline mode</strong> needs the app opened on your PC at{" "}
-            <code style={{ fontSize: 11 }}>http://localhost:3000</code> with the server running locally.
-            Use <strong>Online Mode</strong> here on Vercel, or run the web app on your PC.
+            <strong>Offline mode</strong> only works at{" "}
+            <code style={{ fontSize: 11 }}>http://localhost:3000</code> on your PC (not this HTTPS Vercel URL).
+            See <strong>SETUP.md</strong> in the repo. Use <strong>Online Mode</strong> here.
           </div>
         )}
-        <div style={cardStyle} onClick={handleOfflineMode}>
+        <div
+          style={{ ...cardStyle, opacity: offlineAllowed ? 1 : 0.55 }}
+          onClick={handleOfflineMode}
+        >
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
             <span style={{ fontSize:22 }}>📶</span>
             <span style={{ fontSize:14, fontWeight:600, color:"var(--text)" }}>Offline Mode</span>

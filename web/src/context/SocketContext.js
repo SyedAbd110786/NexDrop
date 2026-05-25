@@ -1,13 +1,20 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import { detectLocalIP, isHostedDeploy, isPrivateIP } from "../utils/network";
+import {
+  canUseOfflineFromBrowser,
+  detectLocalIP,
+  isHostedDeploy,
+  isPrivateIP,
+} from "../utils/network";
 
 const SocketContext = createContext(null);
 const ONLINE_SERVER = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
 
 async function probeLocalServer(ip) {
-  const url = `http://${ip}:5000/offline-connect`;
-  const res = await fetch(url, { method: "GET", signal: AbortSignal.timeout(4000) });
+  const res = await fetch(`http://${ip}:5000/offline-connect`, {
+    method: "GET",
+    signal: AbortSignal.timeout(4000),
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (data.mode !== "offline" || !data.socketUrl) throw new Error("Invalid offline server");
@@ -51,7 +58,7 @@ export function SocketProvider({ children }) {
       const msg = err?.message || "Connection failed";
       if (modeRef.current === "offline") {
         setOfflineError(
-          `Cannot reach ${serverUrl}. Start the server: node server/src/server.js (${msg})`
+          `Cannot reach ${serverUrl}. Run: npm run server — allow port 5000 in Windows Firewall if prompted. (${msg})`
         );
       }
     });
@@ -71,6 +78,14 @@ export function SocketProvider({ children }) {
     setConnected(false);
     setOfflineError(null);
 
+    if (!canUseOfflineFromBrowser()) {
+      setOfflineError(
+        "Offline mode cannot run on the HTTPS Vercel site (browser security). On this PC: run npm run server, then npm run web, and open http://localhost:3000 — see SETUP.md in the repo."
+      );
+      setLocalIP(null);
+      return;
+    }
+
     const hosted = isHostedDeploy(window.location.hostname);
     let ip = manualIP?.trim() || null;
 
@@ -85,8 +100,8 @@ export function SocketProvider({ children }) {
     if (!ip) {
       setOfflineError(
         hosted
-          ? "On Vercel: enter your PC's WiFi IP below (ipconfig), with node server/src/server.js running. Or open http://localhost:3000 on this PC instead."
-          : "Could not detect WiFi IP. Run node server/src/server.js, then enter your IP below (ipconfig)."
+          ? "Enter your PC WiFi IP below (run ipconfig, use IPv4 Address)."
+          : "Could not detect WiFi IP. Run ipconfig, enter IPv4 below, with npm run server running."
       );
       setLocalIP(null);
       return;
@@ -94,10 +109,10 @@ export function SocketProvider({ children }) {
 
     try {
       await probeLocalServer(ip);
-    } catch (e) {
+    } catch {
       setLocalIP(ip);
       setOfflineError(
-        `No server at http://${ip}:5000. On this PC run: node server/src/server.js — then click Apply again.`
+        `Server not running at http://${ip}:5000. In project folder run: npm run server — then click Apply.`
       );
       return;
     }

@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node server/src/server.js",
     "server": "node server/src/server.js",
+    "web": "npm start --prefix web",
     "build": "cd server && npm install"
   },
   "dependencies": {

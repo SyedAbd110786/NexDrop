@@ -18,6 +18,16 @@ export function isLocalHostname(hostname) {
   return false;
 }
 
+/** Browsers block HTTPS pages from calling http:// LAN URLs (mixed content). */
+export function canUseOfflineFromBrowser() {
+  if (typeof window === "undefined") return false;
+  const { protocol, hostname } = window.location;
+  if (protocol !== "http:") {
+    return isLocalHostname(hostname) || isPrivateIP(hostname);
+  }
+  return true;
+}
+
 /** Hosted static deploy (Vercel, Netlify, etc.) cannot run offline/local server */
 export function isHostedDeploy(hostname) {
   if (!hostname) return false;

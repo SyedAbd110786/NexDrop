@@ -61,7 +61,8 @@ function registerSocketHandlers(io) {
 
     // ── PC joins with pairing code ──
     socket.on("pairing:join", ({ sessionCode }) => {
-      const session = pairingSessions[sessionCode];
+      const code = String(sessionCode || "").toUpperCase();
+      const session = pairingSessions[code];
       if (!session) {
         socket.emit("pairing:error", { message: "Invalid or expired code" });
         return;
@@ -99,7 +100,7 @@ function registerSocketHandlers(io) {
         },
       });
 
-      delete pairingSessions[sessionCode];
+      delete pairingSessions[code];
       console.log(`✅ Devices paired: ${hostDevice.deviceName} ↔ ${joiningDevice.deviceName}`);
     });
 
