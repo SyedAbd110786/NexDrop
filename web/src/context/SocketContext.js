@@ -1,12 +1,22 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import { detectLocalIP, isHostedDeploy, isLocalHostname, isPrivateIP } from "../utils/network";
+import { detectLocalIP, isHostedDeploy, isPrivateIP } from "../utils/network";
 
 const SocketContext = createContext(null);
 const ONLINE_SERVER = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
 
+async function probeLocalServer(ip) {
+  const url = `http://${ip}:5000/offline-connect`;
+  const res = await fetch(url, { method: "GET", signal: AbortSignal.timeout(4000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.mode !== "offline" || !data.socketUrl) throw new Error("Invalid offline server");
+  return data.socketUrl;
+}
+
 export function SocketProvider({ children }) {
   const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
   const [deviceId, setDeviceId] = useState(null);
   const [pairedDevice, setPairedDevice] = useState(null);
@@ -19,36 +29,38 @@ export function SocketProvider({ children }) {
   function connectSocket(serverUrl) {
     if (socketRef.current) socketRef.current.disconnect();
     setActiveServerUrl(serverUrl);
+    setConnected(false);
 
-    const socket = io(serverUrl, {
+    const s = io(serverUrl, {
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
     });
-    socketRef.current = socket;
+    socketRef.current = s;
+    setSocket(s);
 
-    socket.on("connect", () => {
+    s.on("connect", () => {
       setConnected(true);
       setOfflineError(null);
-      socket.emit("device:register", { deviceName: "My PC", deviceType: "pc" });
+      s.emit("device:register", { deviceName: "My PC", deviceType: "pc" });
     });
-    socket.on("disconnect", () => setConnected(false));
-    socket.on("connect_error", (err) => {
+    s.on("disconnect", () => setConnected(false));
+    s.on("connect_error", (err) => {
       setConnected(false);
       const msg = err?.message || "Connection failed";
-      setOfflineError(
-        modeRef.current === "offline"
-          ? `Cannot reach local server at ${serverUrl}. Run "node server/src/server.js" on this PC, then retry. (${msg})`
-          : null
-      );
+      if (modeRef.current === "offline") {
+        setOfflineError(
+          `Cannot reach ${serverUrl}. Start the server: node server/src/server.js (${msg})`
+        );
+      }
     });
-    socket.on("device:registered", ({ deviceId }) => setDeviceId(deviceId));
-    socket.on("pairing:success", ({ pairedDevice }) => setPairedDevice(pairedDevice));
-    socket.on("device:disconnected", () => setPairedDevice(null));
-    socket.on("pairing:code:available", ({ sessionCode }) => {
+    s.on("device:registered", ({ deviceId }) => setDeviceId(deviceId));
+    s.on("pairing:success", ({ pairedDevice }) => setPairedDevice(pairedDevice));
+    s.on("device:disconnected", () => setPairedDevice(null));
+    s.on("pairing:code:available", ({ sessionCode }) => {
       if (modeRef.current !== "offline") return;
-      socket.emit("pairing:join", { sessionCode });
+      s.emit("pairing:join", { sessionCode });
     });
   }
 
@@ -59,31 +71,34 @@ export function SocketProvider({ children }) {
     setConnected(false);
     setOfflineError(null);
 
-    const hostname = window.location.hostname;
-    const hosted = isHostedDeploy(hostname);
+    const hosted = isHostedDeploy(window.location.hostname);
     let ip = manualIP?.trim() || null;
 
-    if (ip && !isPrivateIP(ip) && !isLocalHostname(ip)) {
-      setOfflineError("Enter a valid LAN IP (e.g. 192.168.1.5)");
+    if (ip && !isPrivateIP(ip)) {
+      setOfflineError("Enter a valid LAN IP (e.g. 192.168.1.5 from ipconfig)");
       setLocalIP(null);
       return;
     }
 
-    if (!ip) {
-      ip = await detectLocalIP();
-    }
+    if (!ip) ip = await detectLocalIP();
 
     if (!ip) {
-      if (hosted) {
-        setOfflineError(
-          "Offline mode does not work on the Vercel website. On this PC: run the server (node server/src/server.js), open http://localhost:3000, then use Offline Mode — or enter your PC's WiFi IP below."
-        );
-      } else {
-        setOfflineError(
-          "Could not detect your PC's WiFi IP. Run the server locally, then enter your IP below (find it with ipconfig — look for IPv4 on Wi-Fi)."
-        );
-      }
+      setOfflineError(
+        hosted
+          ? "On Vercel: enter your PC's WiFi IP below (ipconfig), with node server/src/server.js running. Or open http://localhost:3000 on this PC instead."
+          : "Could not detect WiFi IP. Run node server/src/server.js, then enter your IP below (ipconfig)."
+      );
       setLocalIP(null);
+      return;
+    }
+
+    try {
+      await probeLocalServer(ip);
+    } catch (e) {
+      setLocalIP(ip);
+      setOfflineError(
+        `No server at http://${ip}:5000. On this PC run: node server/src/server.js — then click Apply again.`
+      );
       return;
     }
 
@@ -108,7 +123,7 @@ export function SocketProvider({ children }) {
 
   return (
     <SocketContext.Provider value={{
-      socket: socketRef.current, connected, deviceId,
+      socket, connected, deviceId,
       pairedDevice, setPairedDevice, mode, localIP, offlineError, activeServerUrl,
       switchToOffline, switchToOnline,
     }}>

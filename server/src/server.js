@@ -43,6 +43,22 @@ app.get("/", (req, res) => {
 
 app.get("/offline-connect", (req, res) => {
   const socketUrl = `http://${req.hostname}:${PORT}`;
+  // #region agent log
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const logLine = JSON.stringify({
+      sessionId: "d0cfc0",
+      location: "server.js:offline-connect",
+      message: "offline-connect ok",
+      data: { hostname: req.hostname, port: PORT, socketUrl, ip: req.ip },
+      timestamp: Date.now(),
+      hypothesisId: "F",
+      runId: "verify",
+    }) + "\n";
+    fs.appendFileSync(path.join(__dirname, "../../debug-d0cfc0.log"), logLine);
+  } catch (_) { /* ignore */ }
+  // #endregion
   res.json({
     status: "NexDrop local server",
     mode: "offline",

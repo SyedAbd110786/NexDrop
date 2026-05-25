@@ -24,6 +24,7 @@ export default function PairScreen() {
 
   function handleJoin() {
     if (code.length < 6) { setError("Enter the 6-character code from your phone"); return; }
+    if (!socket?.connected) { setError("Not connected to server yet. Wait a moment and try again."); return; }
     setLoading(true);
     setError("");
     socket.emit("pairing:join", { sessionCode: code.toUpperCase() });

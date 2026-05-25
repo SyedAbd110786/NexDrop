@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server/src/server.js",
+    "server": "node server/src/server.js",
     "build": "cd server && npm install"
   },
   "dependencies": {

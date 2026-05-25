@@ -60,10 +60,16 @@ public class SocketManager {
         return serverUrl;
     }
 
-    /** Connect to the NexDrop server */
+    /** Connect to the NexDrop server (reconnects if URL changed, e.g. cloud → LAN) */
     public void connect(String serverUrl) {
         this.serverUrl = serverUrl;
-        if (socket != null && socket.connected()) return;
+        if (socket != null) {
+            socket.disconnect();
+            socket = null;
+            deviceId = null;
+            pairedDeviceId = null;
+            pairedDeviceName = null;
+        }
         try {
             IO.Options options = IO.Options.builder()
                     .setTransports(new String[]{"websocket"})

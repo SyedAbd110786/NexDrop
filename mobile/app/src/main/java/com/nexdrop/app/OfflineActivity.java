@@ -68,6 +68,7 @@ public class OfflineActivity extends AppCompatActivity {
 
     private void connectToLocalServer(String socketUrl) {
         SocketManager sm = SocketManager.getInstance();
+        sm.setServerUrl(socketUrl);
         sm.connect(socketUrl);
         sm.addRegisteredListener(deviceId -> runOnUiThread(() -> sm.generatePairingCode()));
         sm.addPairingSuccessListener((pairedDeviceId, pairedDeviceName) ->
