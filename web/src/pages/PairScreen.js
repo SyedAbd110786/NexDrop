@@ -11,15 +11,16 @@ function QRCodeImage({ value, size = 200 }) {
 }
 
 export default function PairScreen() {
-  const { socket, connected, localIP, offlineError, switchToOffline, switchToOnline } = useSocket();
+  const { socket, connected, localIP, pairingCode, activeServerUrl, offlineError, switchToOffline, switchToOnline } = useSocket();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState("home");
   const [manualIP, setManualIP] = useState("");
+  const [showManualCode, setShowManualCode] = useState(false);
 
   const canShowQr = localIP && !offlineError;
-  const offlineUrl = canShowQr ? `http://${localIP}:5000/offline-connect` : null;
+  const offlineUrl = canShowQr ? `http://${localIP}:5000/offline-connect${pairingCode ? `?code=${pairingCode}` : ""}` : null;
   const onHostedSite = isHostedDeploy(window.location.hostname);
   const offlineAllowed = canUseOfflineFromBrowser();
 
@@ -184,6 +185,8 @@ export default function PairScreen() {
     </div>
   );
 
+  const onlineQrValue = pairingCode ? `nexdrop://pair?code=${pairingCode}&server=${encodeURIComponent(activeServerUrl)}` : "";
+
   return (
     <div className="pair-screen">
       <div className="pair-card">
@@ -199,19 +202,56 @@ export default function PairScreen() {
           padding:"4px 12px", borderRadius:20, margin:"8px 0 16px" }}>
           🌐 Online Mode
         </div>
-        <p className="pair-subtitle">Enter the code shown on your phone</p>
-        <input className="pair-input" maxLength={6} placeholder="ABC123" value={code}
-          onChange={e => { setCode(e.target.value); setError(""); }}
-          onKeyDown={e => e.key === "Enter" && handleJoin()} />
-        {error && <p style={{ fontSize:12, color:"var(--red)", marginBottom:10 }}>{error}</p>}
-        <button className="pair-btn" onClick={handleJoin} disabled={!connected || loading}>
-          {loading ? "Connecting..." : connected ? "Connect" : "Connecting to server..."}
-        </button>
-        <p className="pair-hint">
-          Open <strong>NexDrop</strong> on your phone →<br />
-          Tap <strong>Online Mode → Show code</strong><br />
-          Enter the 6-character code above
-        </p>
+
+        {showManualCode ? (
+          <>
+            <p className="pair-subtitle">Enter the code shown on your phone</p>
+            <input className="pair-input" maxLength={6} placeholder="ABC123" value={code}
+              onChange={e => { setCode(e.target.value); setError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleJoin()} />
+            {error && <p style={{ fontSize:12, color:"var(--red)", marginBottom:10 }}>{error}</p>}
+            <button className="pair-btn" onClick={handleJoin} disabled={!connected || loading}>
+              {loading ? "Connecting..." : connected ? "Connect" : "Connecting to server..."}
+            </button>
+            <button onClick={() => setShowManualCode(false)} style={{ background:"none", border:"none",
+              color:"var(--text-3)", cursor:"pointer", fontSize:11, marginTop:12, width:"100%" }}>
+              ← Switch back to QR Code
+            </button>
+          </>
+        ) : (
+          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12, marginTop:8 }}>
+            {onlineQrValue ? (
+              <>
+                <QRCodeImage value={onlineQrValue} size={180} />
+                <p style={{ fontSize:12, color:"var(--text-2)", textAlign:"center", lineHeight:1.6 }}>
+                  Open <strong>NexDrop</strong> on your phone<br />
+                  Tap <strong>Online Mode → Scan QR Code</strong>
+                </p>
+                <div style={{ background:"var(--bg)", border:"1px solid var(--border)",
+                  borderRadius:8, padding:"6px 12px", fontSize:11,
+                  color:"var(--text-3)", fontFamily:"monospace" }}>
+                  Session Code: {pairingCode}
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign:"center", padding:"20px 0", fontSize:13, color:"var(--text-3)" }}>
+                Generating pairing code...
+              </div>
+            )}
+            <div style={{ width:"100%", padding:"10px 14px",
+              background: connected ? "#EAF3DE" : "#FFEBEE",
+              borderRadius:10, fontSize:12,
+              color: connected ? "#3B6D11" : "#B71C1C", textAlign:"center", marginTop:8 }}>
+              {connected
+                ? "✅ Connected to server — waiting for phone..."
+                : "⏳ Connecting to server..."}
+            </div>
+            <button onClick={() => setShowManualCode(true)} style={{ background:"none", border:"none",
+              color:"var(--blue)", cursor:"pointer", fontSize:11, marginTop:8 }}>
+              Can't scan? Enter code manually
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

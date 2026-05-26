@@ -53,7 +53,8 @@ public class OfflineActivity extends AppCompatActivity {
                     JSONObject json = new JSONObject(body);
                     if ("offline".equals(json.optString("mode"))) {
                         String socketUrl = json.getString("socketUrl");
-                        runOnUiThread(() -> connectToLocalServer(socketUrl));
+                        String code = json.optString("code", null);
+                        runOnUiThread(() -> connectToLocalServer(socketUrl, code));
                     } else {
                         runOnUiThread(() -> Toast.makeText(OfflineActivity.this,
                             "Invalid QR code", Toast.LENGTH_LONG).show());
@@ -66,11 +67,19 @@ public class OfflineActivity extends AppCompatActivity {
         });
     }
 
-    private void connectToLocalServer(String socketUrl) {
+    private void connectToLocalServer(String socketUrl, final String code) {
         SocketManager sm = SocketManager.getInstance();
         sm.setServerUrl(socketUrl);
         sm.connect(socketUrl);
-        sm.addRegisteredListener(deviceId -> runOnUiThread(() -> sm.generatePairingCode()));
+        sm.removeRegisteredListener(null);
+        sm.removePairingSuccessListener(null);
+        sm.addRegisteredListener(deviceId -> runOnUiThread(() -> {
+            if (code != null && !code.isEmpty() && !"null".equals(code)) {
+                sm.joinPairingSession(code);
+            } else {
+                sm.generatePairingCode();
+            }
+        }));
         sm.addPairingSuccessListener((pairedDeviceId, pairedDeviceName) ->
             runOnUiThread(() -> {
                 getSharedPreferences("nexdrop_prefs", MODE_PRIVATE)

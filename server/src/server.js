@@ -32,9 +32,15 @@ app.use("/uploads", express.static(uploadsDir));
 
 const PORT = process.env.PORT || 5000;
 
+const { getLocalIPv4 } = require("./local-ip");
+
 // Routes
 app.use("/api/files", fileRoutes);
 app.use("/api/devices", deviceRoutes);
+
+app.get("/api/local-ip", (req, res) => {
+  res.json({ ip: getLocalIPv4() });
+});
 
 // Health check
 app.get("/", (req, res) => {
@@ -50,9 +56,19 @@ app.get("/offline-connect", (req, res) => {
     mode: "offline",
     version: "1.0.0",
     socketUrl,
+    code: req.query.code || null,
     message: "Connected to PC local server"
   });
 });
+
+// Serve React build static files
+const buildDir = path.join(__dirname, "../../web/build");
+if (fs.existsSync(buildDir)) {
+  app.use(express.static(buildDir));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(buildDir, "index.html"));
+  });
+}
 
 // Socket.io handlers
 registerSocketHandlers(io);

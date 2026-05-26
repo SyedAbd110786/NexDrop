@@ -108,8 +108,10 @@ export default function ChatScreen() {
   }
 
   function downloadFile(msg) {
-    const ext = msg.fileName.split(".").pop();
-    window.open(`${activeServerUrl}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
+    window.open(
+      `${activeServerUrl}/api/files/download/${msg.fileId}/${encodeURIComponent(msg.fileName)}`,
+      "_blank"
+    );
   }
 
   return (

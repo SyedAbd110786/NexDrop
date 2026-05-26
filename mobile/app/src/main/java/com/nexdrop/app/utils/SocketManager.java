@@ -189,6 +189,20 @@ public class SocketManager {
         if (socket != null) socket.emit("pairing:generate");
     }
 
+    /** Join a pairing session with a code */
+    public void joinPairingSession(String sessionCode) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("sessionCode", sessionCode);
+            if (socket != null) {
+                socket.emit("pairing:join", data);
+                Log.d(TAG, "Emitted pairing:join with code: " + sessionCode);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Join pairing error: " + e.getMessage());
+        }
+    }
+
     /** Send a text message to paired device */
     public void sendMessage(String text) {
         try {

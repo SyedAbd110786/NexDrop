@@ -140,7 +140,8 @@ public class FileUtils {
      * Build the download URL for a file.
      */
     public static String getDownloadUrl(String fileId, String fileName) {
-        return SocketManager.getInstance().getServerUrl() + "/api/files/download/" + fileId + "/" + fileName;
+        return SocketManager.getInstance().getServerUrl()
+                + "/api/files/download/" + fileId + "/" + Uri.encode(fileName);
     }
 
     // ── CountingRequestBody — tracks upload progress ──

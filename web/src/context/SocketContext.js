@@ -26,6 +26,7 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
   const [deviceId, setDeviceId] = useState(null);
+  const [pairingCode, setPairingCode] = useState(null);
   const [pairedDevice, setPairedDevice] = useState(null);
   const [mode, setMode] = useState("online");
   const [localIP, setLocalIP] = useState(null);
@@ -62,7 +63,13 @@ export function SocketProvider({ children }) {
         );
       }
     });
-    s.on("device:registered", ({ deviceId }) => setDeviceId(deviceId));
+    s.on("device:registered", ({ deviceId }) => {
+      setDeviceId(deviceId);
+      s.emit("pairing:generate");
+    });
+    s.on("pairing:code", ({ sessionCode }) => {
+      setPairingCode(sessionCode);
+    });
     s.on("pairing:success", ({ pairedDevice }) => setPairedDevice(pairedDevice));
     s.on("device:disconnected", () => setPairedDevice(null));
     s.on("pairing:code:available", ({ sessionCode }) => {
@@ -72,6 +79,11 @@ export function SocketProvider({ children }) {
   }
 
   async function switchToOffline(manualIP) {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      setSocket(null);
+    }
     setMode("offline");
     modeRef.current = "offline";
     setPairedDevice(null);
@@ -93,6 +105,18 @@ export function SocketProvider({ children }) {
       setOfflineError("Enter a valid LAN IP (e.g. 192.168.1.5 from ipconfig)");
       setLocalIP(null);
       return;
+    }
+
+    if (!ip) {
+      try {
+        const res = await fetch("http://localhost:5000/api/local-ip", { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ip) ip = data.ip;
+        }
+      } catch (err) {
+        console.warn("Could not fetch IP from local server, trying WebRTC:", err);
+      }
     }
 
     if (!ip) ip = await detectLocalIP();
@@ -138,7 +162,7 @@ export function SocketProvider({ children }) {
 
   return (
     <SocketContext.Provider value={{
-      socket, connected, deviceId,
+      socket, connected, deviceId, pairingCode,
       pairedDevice, setPairedDevice, mode, localIP, offlineError, activeServerUrl,
       switchToOffline, switchToOnline,
     }}>
