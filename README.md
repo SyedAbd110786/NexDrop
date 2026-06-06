@@ -100,6 +100,15 @@ npm install
 ### 2. Install Web Dependencies
 
 Open another terminal:
+## Full setup guide
+
+See **[SETUP.md](SETUP.md)** for step-by-step instructions (online + offline, Vercel, Android, troubleshooting).
+
+**Offline mode:** run `npm run server` and open `http://localhost:3000` — **not** the Vercel HTTPS URL.
+
+---
+
+## Setup — Server
 
 ```bash
 cd D:\CODING\Nexdrop\GitHub\web

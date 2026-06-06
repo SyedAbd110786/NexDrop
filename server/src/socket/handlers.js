@@ -40,6 +40,14 @@ function registerSocketHandlers(io) {
       };
 
       socket.emit("pairing:code", { sessionCode });
+
+      // Notify unpaired PCs so offline mode can auto-join (phone hosts the session)
+      for (const dev of Object.values(connectedDevices)) {
+        if (dev.deviceType === "pc" && !dev.pairedWith) {
+          const pcSocket = io.sockets.sockets.get(dev.socketId);
+          if (pcSocket) pcSocket.emit("pairing:code:available", { sessionCode });
+        }
+      }
       console.log(`🔑 Pairing code generated: ${sessionCode} for device ${deviceId}`);
 
       // Expire session after 5 minutes
@@ -53,7 +61,8 @@ function registerSocketHandlers(io) {
 
     // ── PC joins with pairing code ──
     socket.on("pairing:join", ({ sessionCode }) => {
-      const session = pairingSessions[sessionCode];
+      const code = String(sessionCode || "").toUpperCase();
+      const session = pairingSessions[code];
       if (!session) {
         socket.emit("pairing:error", { message: "Invalid or expired code" });
         return;
@@ -91,7 +100,7 @@ function registerSocketHandlers(io) {
         },
       });
 
-      delete pairingSessions[sessionCode];
+      delete pairingSessions[code];
       console.log(`✅ Devices paired: ${hostDevice.deviceName} ↔ ${joiningDevice.deviceName}`);
     });
 

@@ -22,6 +22,7 @@ function getFileIcon(name = "", type = "") {
 
 export default function ChatScreen() {
   const { socket, pairedDevice, serverUrl, mode } = useSocket();
+  const { socket, pairedDevice, activeServerUrl } = useSocket();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [history, setHistory] = useState([]);
@@ -62,7 +63,7 @@ export default function ChatScreen() {
       socket.off("message:receive");
       socket.off("file:incoming");
     };
-  }, [socket]);
+  }, [socket, activeServerUrl]);
 
   function sendText() {
     if (!text.trim()) return;
@@ -80,6 +81,7 @@ export default function ChatScreen() {
 
     try {
       const res = await axios.post(`${serverUrl}/api/files/upload`, formData, {
+      const res = await axios.post(`${activeServerUrl}/api/files/upload`, formData, {
         onUploadProgress: (e) => {
           const pct = Math.round((e.loaded / e.total) * 100);
           setMessages(prev => prev.map(m => m.tempId === tempId ? { ...m, progress: pct } : m));
@@ -96,6 +98,7 @@ export default function ChatScreen() {
       showToast("❌ Upload failed");
     }
   }, [socket, serverUrl]);
+  }, [socket, activeServerUrl]);
 
   function handleFiles(files) {
     Array.from(files).forEach(uploadFile);
@@ -109,6 +112,10 @@ export default function ChatScreen() {
 
   function downloadFile(msg) {
     window.open(`${serverUrl}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
+    window.open(
+      `${activeServerUrl}/api/files/download/${msg.fileId}/${encodeURIComponent(msg.fileName)}`,
+      "_blank"
+    );
   }
 
   return (

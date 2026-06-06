@@ -139,6 +139,8 @@ public class FileUtils {
      */
     public static String getDownloadUrl(String fileId, String fileName) {
         return SocketManager.getInstance().getServerUrl() + "/api/files/download/" + fileId + "/" + fileName;
+        return SocketManager.getInstance().getServerUrl()
+                + "/api/files/download/" + fileId + "/" + Uri.encode(fileName);
     }
 
     // ── CountingRequestBody — tracks upload progress ──

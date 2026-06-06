@@ -30,9 +30,17 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(uploadsDir));
 
+const PORT = process.env.PORT || 5000;
+
+const { getLocalIPv4 } = require("./local-ip");
+
 // Routes
 app.use("/api/files", fileRoutes);
 app.use("/api/devices", deviceRoutes);
+
+app.get("/api/local-ip", (req, res) => {
+  res.json({ ip: getLocalIPv4() });
+});
 
 // Health check
 app.get("/", (req, res) => {
@@ -43,20 +51,33 @@ app.get("/offline-connect", (req, res) => {
   const host = req.hostname;
   const sessionCode = req.query.code || null;
 
+  const hostHeader = req.headers.host || "";
+  const host = hostHeader.split(":")[0] || req.hostname || "127.0.0.1";
+  const socketUrl = `http://${host}:${PORT}`;
   res.json({
     status: "NexDrop local server",
     mode: "offline",
     version: "1.0.0",
     socketUrl: `http://${host}:${PORT}`,
     sessionCode,
+    socketUrl,
+    code: req.query.code || null,
     message: "Connected to PC local server"
   });
 });
 
+// Serve React build static files
+const buildDir = path.join(__dirname, "../../web/build");
+if (fs.existsSync(buildDir)) {
+  app.use(express.static(buildDir));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(buildDir, "index.html"));
+  });
+}
+
 // Socket.io handlers
 registerSocketHandlers(io);
 
-const PORT = process.env.PORT || 5000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ NexDrop server running on port ${PORT}`);
 });

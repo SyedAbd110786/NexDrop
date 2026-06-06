@@ -1,0 +1,7 @@
+{"sessionId":"d0cfc0","hypothesisId":"INIT","location":"sim","message":"starting simulation","data":{"SERVER":"http://127.0.0.1:5000"},"timestamp":1779699407579,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"E","location":"sim:offline-connect","message":"endpoint response","data":{"status":"NexDrop local server","mode":"offline","version":"1.0.0","socketUrl":"http://127.0.0.1:5000","message":"Connected to PC local server"},"timestamp":1779699407659,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"A","location":"sim:online","message":"phone generated code","data":{"code":"RD5W84"},"timestamp":1779699407718,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"A","location":"sim:online","message":"PC join result","data":{"result":true},"timestamp":1779699407722,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"A","location":"sim:offline","message":"PC got pairing:code:available","data":{"sessionCode":"HNFQ02","runId":"post-fix"},"timestamp":1779699407750,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"A","location":"sim:offline","message":"offline auto-pair result","data":{"ok":true,"d":{"pairedDevice":{"deviceId":"cb79c6aa-2103-4dcf-90d1-e6e8a84f965b","deviceName":"SimPhone-Offline","deviceType":"mobile"}},"runId":"post-fix"},"timestamp":1779699407752,"runId":"sim-pre-fix"}
+{"sessionId":"d0cfc0","hypothesisId":"SUMMARY","location":"sim","message":"results","data":{"endpointOk":true,"onlineOk":true,"offlineAutoPair":true,"runId":"post-fix"},"timestamp":1779699407753,"runId":"sim-pre-fix"}

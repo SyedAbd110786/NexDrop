@@ -28,6 +28,7 @@ public class SocketManager {
     private String pairedDeviceId;
     private String pairedDeviceName;
     private String currentServerUrl = BuildConfig.SERVER_URL;
+    private String serverUrl = BuildConfig.SERVER_URL;
 
     // Listeners — activities register these to get updates
     private final List<OnDeviceRegisteredListener> registeredListeners = new ArrayList<>();
@@ -72,6 +73,24 @@ public class SocketManager {
         pairedDeviceId = null;
         pairedDeviceName = null;
 
+    public void setServerUrl(String url) {
+        this.serverUrl = url;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    /** Connect to the NexDrop server (reconnects if URL changed, e.g. cloud → LAN) */
+    public void connect(String serverUrl) {
+        this.serverUrl = serverUrl;
+        if (socket != null) {
+            socket.disconnect();
+            socket = null;
+            deviceId = null;
+            pairedDeviceId = null;
+            pairedDeviceName = null;
+        }
         try {
             IO.Options options = IO.Options.builder()
                     .setTransports(new String[]{"websocket"})
@@ -198,6 +217,15 @@ public class SocketManager {
             JSONObject data = new JSONObject();
             data.put("sessionCode", sessionCode.toUpperCase());
             socket.emit("pairing:join", data);
+    /** Join a pairing session with a code */
+    public void joinPairingSession(String sessionCode) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("sessionCode", sessionCode);
+            if (socket != null) {
+                socket.emit("pairing:join", data);
+                Log.d(TAG, "Emitted pairing:join with code: " + sessionCode);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Join pairing error: " + e.getMessage());
         }
