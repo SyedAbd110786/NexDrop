@@ -40,11 +40,15 @@ app.get("/", (req, res) => {
 });
 
 app.get("/offline-connect", (req, res) => {
+  const host = req.hostname;
+  const sessionCode = req.query.code || null;
+
   res.json({
     status: "NexDrop local server",
     mode: "offline",
     version: "1.0.0",
-    socketUrl: `http://${req.hostname}:${PORT}`,
+    socketUrl: `http://${host}:${PORT}`,
+    sessionCode,
     message: "Connected to PC local server"
   });
 });

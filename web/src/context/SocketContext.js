@@ -11,6 +11,7 @@ export function SocketProvider({ children }) {
   const [pairedDevice, setPairedDevice] = useState(null);
   const [mode, setMode] = useState("online");
   const [localIP, setLocalIP] = useState(null);
+  const [serverUrl, setServerUrl] = useState(ONLINE_SERVER);
 
   async function detectLocalIP() {
     return new Promise((resolve) => {
@@ -31,6 +32,7 @@ export function SocketProvider({ children }) {
 
   function connectSocket(serverUrl) {
     if (socketRef.current) socketRef.current.disconnect();
+    setServerUrl(serverUrl);
     const socket = io(serverUrl, {
       transports: ["websocket"],
       reconnection: true,
@@ -73,7 +75,7 @@ export function SocketProvider({ children }) {
   return (
     <SocketContext.Provider value={{
       socket: socketRef.current, connected, deviceId,
-      pairedDevice, setPairedDevice, mode, localIP,
+      pairedDevice, setPairedDevice, mode, localIP, serverUrl,
       switchToOffline, switchToOnline,
     }}>
       {children}

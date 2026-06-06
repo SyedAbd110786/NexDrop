@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
-import com.nexdrop.app.BuildConfig;
-
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -108,7 +106,7 @@ public class FileUtils {
                     callback.onProgress(percent);
                 });
 
-                String uploadUrl = BuildConfig.SERVER_URL + "/api/files/upload";
+                String uploadUrl = SocketManager.getInstance().getServerUrl() + "/api/files/upload";
                 Request request = new Request.Builder()
                         .url(uploadUrl)
                         .post(countingBody)
@@ -140,7 +138,7 @@ public class FileUtils {
      * Build the download URL for a file.
      */
     public static String getDownloadUrl(String fileId, String fileName) {
-        return BuildConfig.SERVER_URL + "/api/files/download/" + fileId + "/" + fileName;
+        return SocketManager.getInstance().getServerUrl() + "/api/files/download/" + fileId + "/" + fileName;
     }
 
     // ── CountingRequestBody — tracks upload progress ──

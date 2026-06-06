@@ -53,7 +53,13 @@ public class OfflineActivity extends AppCompatActivity {
                     JSONObject json = new JSONObject(body);
                     if ("offline".equals(json.optString("mode"))) {
                         String socketUrl = json.getString("socketUrl");
-                        runOnUiThread(() -> connectToLocalServer(socketUrl));
+                        String sessionCode = json.optString("sessionCode", "");
+                        if (sessionCode.isEmpty()) {
+                            runOnUiThread(() -> Toast.makeText(OfflineActivity.this,
+                                "QR code has no pairing session. Refresh PC offline mode.", Toast.LENGTH_LONG).show());
+                            return;
+                        }
+                        runOnUiThread(() -> connectToLocalServer(socketUrl, sessionCode));
                     } else {
                         runOnUiThread(() -> Toast.makeText(OfflineActivity.this,
                             "Invalid QR code", Toast.LENGTH_LONG).show());
@@ -66,10 +72,9 @@ public class OfflineActivity extends AppCompatActivity {
         });
     }
 
-    private void connectToLocalServer(String socketUrl) {
+    private void connectToLocalServer(String socketUrl, String sessionCode) {
         SocketManager sm = SocketManager.getInstance();
-        sm.connect(socketUrl);
-        sm.addRegisteredListener(deviceId -> runOnUiThread(() -> sm.generatePairingCode()));
+        sm.addRegisteredListener(deviceId -> runOnUiThread(() -> sm.joinPairingCode(sessionCode)));
         sm.addPairingSuccessListener((pairedDeviceId, pairedDeviceName) ->
             runOnUiThread(() -> {
                 getSharedPreferences("nexdrop_prefs", MODE_PRIVATE)
@@ -78,5 +83,6 @@ public class OfflineActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ChatActivity.class));
                 finish();
             }));
+        sm.connect(socketUrl);
     }
 }

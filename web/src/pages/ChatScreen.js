@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSocket } from "../context/SocketContext";
 
-const SERVER = process.env.REACT_APP_SERVER_URL || "http://localhost:5000";
-
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -23,7 +21,7 @@ function getFileIcon(name = "", type = "") {
 }
 
 export default function ChatScreen() {
-  const { socket, pairedDevice } = useSocket();
+  const { socket, pairedDevice, serverUrl, mode } = useSocket();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [history, setHistory] = useState([]);
@@ -81,7 +79,7 @@ export default function ChatScreen() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(`${SERVER}/api/files/upload`, formData, {
+      const res = await axios.post(`${serverUrl}/api/files/upload`, formData, {
         onUploadProgress: (e) => {
           const pct = Math.round((e.loaded / e.total) * 100);
           setMessages(prev => prev.map(m => m.tempId === tempId ? { ...m, progress: pct } : m));
@@ -97,7 +95,7 @@ export default function ChatScreen() {
       setMessages(prev => prev.filter(m => m.tempId !== tempId));
       showToast("❌ Upload failed");
     }
-  }, [socket]);
+  }, [socket, serverUrl]);
 
   function handleFiles(files) {
     Array.from(files).forEach(uploadFile);
@@ -110,8 +108,7 @@ export default function ChatScreen() {
   }
 
   function downloadFile(msg) {
-    const ext = msg.fileName.split(".").pop();
-    window.open(`${SERVER}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
+    window.open(`${serverUrl}/api/files/download/${msg.fileId}/${msg.fileName}`, "_blank");
   }
 
   return (
@@ -147,7 +144,7 @@ export default function ChatScreen() {
           <div className="d-avatar blue"><i className="ti ti-device-mobile" /></div>
           <div className="d-info">
             <div className="d-name">{pairedDevice?.deviceName || "My Phone"}</div>
-            <div className="d-sub online">Online</div>
+            <div className="d-sub online">{mode === "offline" ? "Offline LAN" : "Online"}</div>
           </div>
           <div className="status-dot on" />
         </div>
